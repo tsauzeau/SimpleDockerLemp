@@ -1,0 +1,49 @@
+version: '2'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: lempNginx
+    restart: always
+    depends_on:
+      - php
+    volumes:
+      - ./htdocs:/var/www/html/:ro
+      - ./nginx/conf/nginx.conf:/etc/nginx/conf/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    ports:
+      - 80:80
+      - 443:443
+
+  php:
+    build: php
+    container_name: lempPhp
+    restart: always
+    depends_on:
+      - db
+    volumes:
+      - ./htdocs:/var/www/html/:ro
+    ports:
+      - "9000:9000"
+
+  db:
+    image: mariadb:latest
+    container_name: lempMariadb
+    restart: always
+    ports:
+     - 3306:3306
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: lempPhpMyAdmin
+    depends_on:
+      - db
+    restart: always
+    ports:
+     - 8080:80
+volumes:
+  db-data:
+    driver: local
